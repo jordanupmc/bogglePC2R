@@ -1,0 +1,32 @@
+#				PC2R
+#		Makefile pour le serveur Boogle
+
+CC = gcc
+DIR=.
+BIN=$(DIR)/bin/
+DIROBJ= $(DIR)/obj/
+OBJ =  $(DIROBJ)serveur.o  $(DIROBJ)grille.o $(DIROBJ)game.o $(DIROBJ)threadSafeList.o
+SRC=$(DIR)/src/
+LDFLAGS = -pthread -O3 -Wall #-static #-O0 -g -static
+
+.SUFFIXES:
+.PHONY: all clean prog 
+
+all: $(BIN)server
+
+$(BIN)server: $(OBJ)
+	$(CC) $(LDFLAGS) -o $@ $(OBJ) -lm
+
+$(DIROBJ)serveur.o: $(SRC)serveur.c $(SRC)serveur.h
+	$(CC) -c $(LDFLAGS) -o $@ $< -lm
+
+$(DIROBJ)grille.o: $(SRC)grille.c $(SRC)grille.h
+	$(CC) -c  $(LDFLAGS) -o $@  $< -lm
+
+$(DIROBJ)game.o: $(SRC)game.c $(SRC)game.h
+	$(CC) -c  $(LDFLAGS) -o $@  $< -lm
+
+$(DIROBJ)threadSafeList.o: $(SRC)threadSafeList.c $(SRC)threadSafeList.h
+	$(CC) -c  $(LDFLAGS) -o $@  $< -lm
+clean:
+	rm -f $(BIN)* $(OBJ)
