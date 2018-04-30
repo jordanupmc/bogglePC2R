@@ -112,7 +112,7 @@ void addNewJoueur(int sock, char * nom, joueur** tab ){
     perror("newJoueur malloc :( ");
   }
   j->sock= sock;
-  
+  j->score=0;
   strncpy(j->nom, nom, strlen(nom));
   pthread_mutex_lock(&mutJoueur);
   tab[nbPlayer++] = j;
@@ -224,7 +224,7 @@ char addTrouveToPlayer(int sockId, char* mot, char * traj, joueur** tab){
   pthread_mutex_lock(&mutJoueur);
    int i;
    for(i=0; i< nbPlayer; i++){
-     if( tab[i] && tab[i]->sock == sockId){
+     if( tab[i] && tab[i]->sock == sockId && (tab[i]->nbTrouve)< MAX_PLAYER_PROP){
       
        strncpy(tab[i]->mots[tab[i]->nbTrouve], mot, strlen(mot)<17?strlen(mot):16);
        strncpy(tab[i]->traj[tab[i]->nbTrouve], traj, strlen(traj)<17?strlen(traj):16);
@@ -267,6 +267,7 @@ void resetPlayerScore(joueur** tab){
     }
   }
 }
+
 
 int strlenToScore(int length){
   switch(length){

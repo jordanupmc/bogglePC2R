@@ -81,5 +81,5 @@ extern int nbTourSession;
 extern char isFormatCorrect(char * req, int size);
 extern data * parseRequest(char * req, int size, int newSock);
 extern int readInChan(int sock, char * buf, int size);
-
+extern void reduceScore();
 #endif

@@ -3,6 +3,7 @@
 #define GAME_H_INCLUDED
 #define MAX_CONNECTED_PLAYER 10
 #define TIME_TOUR 60 * 3
+#define MAX_PLAYER_PROP 1024
 
 extern int getTour();
 extern int getSession();
@@ -15,8 +16,8 @@ typedef struct joueur{
   char nom[100];
   int score;
   int nbTrouve;
-  char traj[256][17];
-  char mots[256][17];
+  char traj[MAX_PLAYER_PROP][18];
+  char mots[MAX_PLAYER_PROP][18];
   char badExit;
 } joueur;
 

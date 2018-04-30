@@ -122,7 +122,8 @@ data * parseRequest(char * req, int size, int newSock ){
   memset(msg, 0, MAX);
   memset(mot, 0, MAX/2);
   memset(traj, 0, MAX_TRAJ);
-
+  //printf("REQ =%s\n",req);
+  
   while(it){    
     
     //printf("%s %d\n", it, strlen(it));
@@ -173,6 +174,7 @@ data * parseRequest(char * req, int size, int newSock ){
 
   return res;
 }
+
 int containsNewLine(char * tab, int size){
   int i;
   for(i=0; i<size; i++)
@@ -200,7 +202,7 @@ int readInChan(int sock, char * buf, int size){
   }
   if(r > size)
     return 0;
-
+  //printf("READ  = %s\n", buf);
   buf[r-1] = 0; 
   return r-1;
 }
@@ -361,6 +363,21 @@ void writeToJournal(char * scores, int tour){
   free(buf);
 }
 
+void calculScore(){
+   nodePropose * it= proposition;
+  while( it ){
+    ljoueur * itj = it->players;
+    if(it->nbPlayer == 1){
+      if(itj){
+	itj->joueur->score += strlenToScore(strlen(it->mot));
+	printf("Calcul SCORE= %d %s %s\n",itj->joueur->score, itj->joueur->nom, it->mot);
+      }
+    }
+    it = it->suiv;
+  }
+  
+}
+
 void * job_Timer(void * arg){
   timerArg * ta = (timerArg *)arg;
  
@@ -403,9 +420,12 @@ void * job_Timer(void * arg){
       if( (*(ta->nbVerif)) != 0 )
 	pthread_cond_wait(&condEndVerif, &mutVerif);
       pthread_mutex_unlock(&mutVerif);
+      calculScore();
+      //reduceScore();
     }
     
     //nodePropose * it= proposition;
+ 
     char * wordsProp = allWords(proposition); //TOFREE
     char * scores = getScoresNotSafe(ta->players);
     char *motsProp; 
@@ -675,13 +695,14 @@ void reduceScore(){
   while( it ){
     ljoueur * itj = it->players;
     if(it->nbPlayer > 1){
+     
       while(itj){
 	itj->joueur->score =  itj->joueur->score - strlenToScore(strlen( it->mot ));
-	itj->joueur->score = itj->joueur->score < 0 ? 0: itj->joueur->score;
-	printf("RS score = %d\n",itj->joueur->score);
+	itj->joueur->score = itj->joueur->score <= 0 ? 0: itj->joueur->score;
+	printf("RS SCORE= %d %s\n",itj->joueur->score, itj->joueur->nom);
 	itj = itj->suiv;
       }
-      
+     
     }
     it = it->suiv;
   }
@@ -716,7 +737,7 @@ void* job_Chat(void * arg){
     }
     else{
       snprintf(buf, MAX-1, "PRECEPTION/%s/%s/\n", curr->msg, curr->author);
-      printf("buf = %s go\n", buf);
+      //printf("buf = %s go\n", buf);
       dest = getJoueurByNameNotSafe(curr->nom, ca->players);
       if( !dest || !(write(dest->sock , buf, strlen(buf) ))){
 	perror("Error Broadcast write ou le dest n'existe pas");
@@ -745,13 +766,14 @@ void* job_Verif(void * arg){
       pthread_cond_wait(&condEmptyVerif, &mutVerif);
     if( (*(va->nbVerif)) == (*(va->nbVerif2))){
       (*(va->cptJob))=0;
-      printf("INIT verif2\n");
+      // printf("INIT verif2\n");
     }
     tmp= --(*(va->nbVerif));
     pthread_mutex_unlock(&mutVerif);
-    
+    printf("%s %d\n", va->players[tmp]->nom, va->players[tmp]->nbTrouve);
     for(i=0; va->players[tmp] && i< va->players[tmp]->nbTrouve; i++){
       
+      // printf("TROUVE = %s %s", va->players[tmp]->mots[i],va->players[tmp]->traj[i] );
       memset(buf,0, NB_des+10);
       memset(bufErr,0, MAX/2);
       sizeMot = strlen(va->players[tmp]->mots[i]);
@@ -759,7 +781,7 @@ void* job_Verif(void * arg){
       /*Mauvais client*/
 
       if(nbCase != sizeMot){
-	fprintf(stderr,"GRAVE: NB CASE DIFF de sizeMot ! %d %d\n",nbCase,sizeMot);
+	fprintf(stderr,"GRAVE: NB CASE DIFF de sizeMot ! %d %d %s %s\n",nbCase,sizeMot, va->players[tmp]->mots[i], va->players[tmp]->traj[i]);
 	
 	snprintf( bufErr, (MAX/2)-1, "MINVALIDE/POS nombre case differente de la taille du mot/\n");
 	if( !(write(va->players[tmp]->sock , bufErr, strlen(bufErr) ))){
@@ -792,8 +814,8 @@ void* job_Verif(void * arg){
 	    else{
 	      //SCORE++
 	      addPropose(&proposition, va->players[tmp]->mots[i], va->players[tmp]);
-	      va->players[tmp]->score+=strlenToScore(sizeMot);
-	      printf("Propose score %d\n",va->players[tmp]->score);
+	      //va->players[tmp]->score+=strlenToScore(sizeMot);
+	      // printf("Propose score %d\n",va->players[tmp]->score);
 	    }
 	  }
 	  //Le mot n'existe pas dans le dico
@@ -848,7 +870,7 @@ void* job_Verif(void * arg){
 
     //Si je suis le dernier thread je reduit les scores et je debloque le timer
     if( (*(va->cptJob)) == (*(va->nbVerif2))){
-      reduceScore();
+      //reduceScore();
       (*(va->cptJob))=0;
       pthread_cond_broadcast(&condEndVerif);
     }
@@ -1165,6 +1187,8 @@ int main(int argc, char** argv){
 		reqTrouve[nbTrouve++]=d;
 		pthread_cond_signal( &condEmptyTrouve );
 	      }
+	      else
+		printf("=======###############################C la merde\n");
 	      pthread_mutex_unlock(&mutTrouve);
 	    }
 	    else if(d->type == 3 || d->type == 4){
