@@ -179,7 +179,7 @@ int * convertClientTrajectoireToPosition( char * trajArg, int n ){
     perror("malloc at convertUserTrajectoireToPosition ");
     return NULL;
   }
-
+  printf("TRAJ ARG = %s\n", trajArg);
   for(i=0; i< n; i++){
 
     switch (traj[i][0]){
@@ -209,9 +209,15 @@ int * convertClientTrajectoireToPosition( char * trajArg, int n ){
       return NULL;
     }
     tab[i] = offset + traj[i][1]-1;
-    //  printf("CONVERT : offset=%d traj=%d tab=%d\n", offset,traj[i][1]-1, tab[i] );
+    
+    //printf("CONVERT traj[i][1]-1%d\n", traj[i][1]-1);
+    //printf("CONVERT : offset=%d traj=%d tab=%d\n", offset,traj[i][1]-1, tab[i] );
   }
+  printf("Print position.... ");
+  for(i=0; i< n; i++)
+    printf("%d ", tab[i]);
   
+  putchar('\n');
   for(i = 0; i< n; i++ )
     free(traj[i]);  
   free(traj);

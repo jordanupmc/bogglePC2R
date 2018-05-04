@@ -41,14 +41,13 @@ html = """<!DOCTYPE html>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
-      <title>JOJO-MIKA WEB SERVER</title>
+      <title>Resultats de sessions</title>
 </head>
-<body  style="background-image:url(img/background1.jpg);
-background-repeat: repeat-y">
+<body style="background-color: rgb(245, 244, 235);color: rgb(137, 54, 103); ">
 <img src="img/logo.png" style="display: block;
     margin-left: auto;
     margin-right: auto;
-    width: 34%"/>
+    width: 24%"/>
 <h1 style="text-align: center;
            font-family:Impact, Charcoal, sans-serif
 ">Resultats des sessions</h1><br>"""+content+"""</body>

@@ -7,7 +7,7 @@ BIN=$(DIR)/bin/
 DIROBJ= $(DIR)/obj/
 OBJ =  $(DIROBJ)serveur.o  $(DIROBJ)grille.o $(DIROBJ)game.o $(DIROBJ)threadSafeList.o
 SRC=$(DIR)/src/
-LDFLAGS = -pthread -O3 -Wall #-O0 -g 
+LDFLAGS = -pthread -Wall -O0 -g 
 
 .SUFFIXES:
 .PHONY: all clean prog 

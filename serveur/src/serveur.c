@@ -49,15 +49,15 @@ void fillData(data * d, unsigned char type, char * nom, char* mot, char * trajec
   d->fromSock = s;
 
   if(nom){
-    //memset(d->nom, 0, MAX);
-    strncpy(d->nom, nom, strlen(nom) < MAX ? strlen(nom): MAX-1);
+    memset(d->nom, 0, MAX_NAME);
+    strncpy(d->nom, nom, strlen(nom) < MAX_NAME ? strlen(nom): MAX_NAME-1);
   }
   if(mot){
-    //memset(d->mot, 0, MAX);
-    strncpy(d->mot, mot, strlen(mot)< MAX ? strlen(mot): MAX-1);
+    memset(d->mot, 0, MAX_MOT);
+    strncpy(d->mot, mot, strlen(mot)< MAX_MOT ? strlen(mot): MAX_MOT-1);
   }
   if(trajectoire){
-    // memset(d->traj, 0, MAX_TRAJ);
+    memset(d->traj, 0, MAX_TRAJ);
     strncpy(d->traj, trajectoire, strlen(trajectoire)<MAX_TRAJ-1? strlen(trajectoire):MAX_TRAJ-1 );
   }
 
@@ -346,6 +346,7 @@ void writeToJournal(char * scores, int tour){
   char * buf = malloc( lenS );
   if(!buf)
     return;
+  
   snprintf(buf, lenS-1,"\nS %d %d/%d/%d-%d:%d:%d\nU %s\nF\n", tour, tm.tm_mday, tm.tm_mon + 1,tm.tm_year + 1900, tm.tm_hour, tm.tm_min, tm.tm_sec,scores);
   int fd=open(JOURNAL_PATH, O_CREAT|O_APPEND|O_WRONLY, 00600);
   
@@ -678,6 +679,7 @@ void* job_AddTrouve(void * arg){
       continue;
     }
     pthread_mutex_unlock(&mutTime);
+    printf("ADD TROUVE traj= %s\n", curr->traj);
     if(curr)
     addTrouveToPlayer(curr->fromSock, curr->mot, curr->traj, ta->players);
     if(curr)
@@ -1185,10 +1187,11 @@ int main(int argc, char** argv){
 	      pthread_mutex_lock(&mutTrouve);
 	      if( nbTrouve < MAX ){
 		reqTrouve[nbTrouve++]=d;
+		printf("JOB TRAJ = %s\n", d->traj);
 		pthread_cond_signal( &condEmptyTrouve );
 	      }
 	      else
-		printf("=======###############################C la merde\n");
+		printf("=======############################### Too many request\n");
 	      pthread_mutex_unlock(&mutTrouve);
 	    }
 	    else if(d->type == 3 || d->type == 4){

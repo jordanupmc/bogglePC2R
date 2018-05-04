@@ -4,6 +4,8 @@
 #define MAX_CONNECTED_PLAYER 10
 #define TIME_TOUR 60 * 3
 #define MAX_PLAYER_PROP 1024
+#define MAX_NAME 100
+#define MAX_MOT 18
 
 extern int getTour();
 extern int getSession();
@@ -13,11 +15,11 @@ extern void setSession(int x);
 
 typedef struct joueur{
   int sock;
-  char nom[100];
+  char nom[MAX_NAME];
   int score;
   int nbTrouve;
-  char traj[MAX_PLAYER_PROP][18];
-  char mots[MAX_PLAYER_PROP][18];
+  char traj[MAX_PLAYER_PROP][MAX_MOT];
+  char mots[MAX_PLAYER_PROP][MAX_MOT];
   char badExit;
 } joueur;
 
