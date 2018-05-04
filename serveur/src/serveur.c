@@ -53,8 +53,8 @@ void fillData(data * d, unsigned char type, char * nom, char* mot, char * trajec
     strncpy(d->nom, nom, strlen(nom) < MAX_NAME ? strlen(nom): MAX_NAME-1);
   }
   if(mot){
-    memset(d->mot, 0, MAX_MOT);
-    strncpy(d->mot, mot, strlen(mot)< MAX_MOT ? strlen(mot): MAX_MOT-1);
+    memset(d->mot, 0, MAX);
+    strncpy(d->mot, mot, strlen(mot)< MAX ? strlen(mot): MAX);
   }
   if(trajectoire){
     memset(d->traj, 0, MAX_TRAJ);
@@ -149,6 +149,7 @@ data * parseRequest(char * req, int size, int newSock ){
     }
     else if( type == 2 && cpt==1){
       strncpy(mot, it, strlen(it) );
+      printf("MOT = %s\n",mot);
     }
     else if( type ==2 && cpt==2){
       strncpy(traj, it, strlen(it) );
@@ -640,7 +641,7 @@ void* job_AddTrouveImmediat(void * arg){
       free(pos);
     }
     else {
-      snprintf( bufErr, (MAX/2-1), "MINVALIDE/POS trajectoire invalide\n");
+      snprintf( bufErr, (MAX/2)-1, "MINVALIDE/POS trajectoire invalide\n");
       if( !(write(curr->fromSock , bufErr, strlen(bufErr) ))){
 	perror("Error Broadcast write outchan server");
 	setBadExit(player);
