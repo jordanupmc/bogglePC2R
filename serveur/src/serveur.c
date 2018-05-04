@@ -149,7 +149,7 @@ data * parseRequest(char * req, int size, int newSock ){
     }
     else if( type == 2 && cpt==1){
       strncpy(mot, it, strlen(it) );
-      printf("MOT = %s\n",mot);
+      //printf("MOT = %s\n",mot);
     }
     else if( type ==2 && cpt==2){
       strncpy(traj, it, strlen(it) );
@@ -372,7 +372,7 @@ void calculScore(){
     if(it->nbPlayer == 1){
       if(itj){
 	itj->joueur->score += strlenToScore(strlen(it->mot));
-	printf("Calcul SCORE= %d %s %s\n",itj->joueur->score, itj->joueur->nom, it->mot);
+	//printf("Calcul SCORE= %d %s %s\n",itj->joueur->score, itj->joueur->nom, it->mot);
       }
     }
     it = it->suiv;
@@ -458,7 +458,7 @@ void * job_Timer(void * arg){
 	setBadExit(ta->players[i]);
       }
     
-    detruire( &proposition );
+    detruire( proposition );
     printf("BILAN  = %s\n", motsProp);
     if(motsProp)
       free(motsProp);
@@ -589,12 +589,12 @@ void* job_AddTrouveImmediat(void * arg){
 						   nbCase);
     if(pos){
       if( (cTraj=checkTrajectoire( pos, nbCase )) == 1 &&  (match=checkTrajMatchMot(curr->mot, pos, curTirage)) ==1 ){
-	printf("Cool trajectoire correcte\nVerif dans dico...\n");
+	//printf("Cool trajectoire correcte\nVerif dans dico...\n");
 	 
 	char cm = checkMot(curr->mot, sizeMot, ta->sockDico);
 	if(cm == 1){
 	  
-	  if(containsMotThenAdd(&proposition, curr->mot, player)){
+	  if(containsMotThenAdd(proposition, curr->mot, player)){
 	    snprintf( bufErr, (MAX/2)-1, "MINVALIDE/PRI mot deja propose/\n");
 	    if( !(write(curr->fromSock , bufErr, strlen(bufErr) ))){
 	      perror("Error Broadcast write outchan server"); 
@@ -680,7 +680,7 @@ void* job_AddTrouve(void * arg){
       continue;
     }
     pthread_mutex_unlock(&mutTime);
-    printf("ADD TROUVE traj= %s\n", curr->traj);
+    //printf("ADD TROUVE traj= %s\n", curr->traj);
     if(curr)
     addTrouveToPlayer(curr->fromSock, curr->mot, curr->traj, ta->players);
     if(curr)
@@ -773,7 +773,7 @@ void* job_Verif(void * arg){
     }
     tmp= --(*(va->nbVerif));
     pthread_mutex_unlock(&mutVerif);
-    printf("%s %d\n", va->players[tmp]->nom, va->players[tmp]->nbTrouve);
+    //printf("%s %d\n", va->players[tmp]->nom, va->players[tmp]->nbTrouve);
     for(i=0; va->players[tmp] && i< va->players[tmp]->nbTrouve; i++){
       
       // printf("TROUVE = %s %s", va->players[tmp]->mots[i],va->players[tmp]->traj[i] );
@@ -816,7 +816,7 @@ void* job_Verif(void * arg){
 	    }
 	    else{
 	      //SCORE++
-	      addPropose(&proposition, va->players[tmp]->mots[i], va->players[tmp]);
+	      addPropose(proposition, va->players[tmp]->mots[i], va->players[tmp]);
 	      //va->players[tmp]->score+=strlenToScore(sizeMot);
 	      // printf("Propose score %d\n",va->players[tmp]->score);
 	    }
@@ -994,7 +994,7 @@ int main(int argc, char** argv){
   if(immediat)
     printf("===Option immediat active===\n");
 
-  printf("===START web server if you need results: localhost:8888/cgi.py===\n");
+  printf("===Lancez le web server si vous voulez visualiser les resultats: localhost:8888/cgi.py===\n");
 
   if(s< 0){
     perror("SOCKET OPEN ");
@@ -1188,7 +1188,7 @@ int main(int argc, char** argv){
 	      pthread_mutex_lock(&mutTrouve);
 	      if( nbTrouve < MAX ){
 		reqTrouve[nbTrouve++]=d;
-		printf("JOB TRAJ = %s\n", d->traj);
+		//printf("JOB TRAJ = %s\n", d->traj);
 		pthread_cond_signal( &condEmptyTrouve );
 	      }
 	      else
@@ -1202,7 +1202,7 @@ int main(int argc, char** argv){
 		if( author ){	  
 		  memset(d->author, 0, MAX);
 		  strncpy(d->author, author->nom, strlen(author->nom)< MAX-1? strlen(author->nom): MAX-1 );
-		  printf("getJoueur %s data =%s \n",author->nom, d->author);
+		  //printf("getJoueur %s data =%s \n",author->nom, d->author);
 		}
 	      }
 	      reqChat[nbChat++]=d;
