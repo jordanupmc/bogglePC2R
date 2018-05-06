@@ -26,7 +26,7 @@ int sizeLJoueur(ljoueur *lj){
     return 0;
   return 1+sizeLJoueur(lj->suiv);
 }
-void addProposeNotSafe(nodePropose * l,char * mot, joueur* j){
+nodePropose* addProposeNotSafe(nodePropose * l,char * mot, joueur* j){
  nodePropose *tmp, *it;
  
   if(!l){
@@ -38,7 +38,7 @@ void addProposeNotSafe(nodePropose * l,char * mot, joueur* j){
     //printf("VRAIMENT ADD = %s mot =%s %d\n", (*l)->mot, mot, strlen(mot));
     l->nbPlayer= 1;
     l->suiv=NULL;
-    return;
+    return l;
   }
   it = l;
   int smot =strlen(mot);
@@ -51,7 +51,7 @@ void addProposeNotSafe(nodePropose * l,char * mot, joueur* j){
       (it->nbPlayer)++;
       //(*l)->nbPlayer = 
       //printf("ADDPROPOSE nbPLay=%d %s\n", (*l)->nbPlayer, it->mot);
-      return;
+      return l;
     }
     it = it -> suiv;
   }
@@ -63,13 +63,15 @@ void addProposeNotSafe(nodePropose * l,char * mot, joueur* j){
   strncpy(l->mot, mot, strlen(mot));
   l->mot[strlen(mot)]='\0';
   //printf("VRAIMENT ADD = %s mot=%s %d\n", (*l)->mot,mot , strlen(mot));
- 
+  return l;
 }
 
-void addPropose(nodePropose * l,char * mot, joueur* j){
+nodePropose* addPropose(nodePropose * l,char * mot, joueur* j){
+  nodePropose* tmp;
   pthread_mutex_lock(&mutList);
-  addProposeNotSafe(l,mot,j);
+  tmp = addProposeNotSafe(l,mot,j);
   pthread_mutex_unlock(&mutList);
+  return tmp;
 }
 
 
@@ -88,12 +90,12 @@ void detruirePlayers(ljoueur * l ){
    detruirePlayers(tmp);
 }
 
-void detruire(nodePropose* l){
+nodePropose * detruire(nodePropose* l){
   nodePropose * tmp;
   nodePropose * tmp2;
   
   if(!l)
-    return;
+    return NULL;
  
   tmp=l->suiv;
   detruirePlayers( l->players);
@@ -104,7 +106,7 @@ void detruire(nodePropose* l){
     free(tmp2);
     tmp2=tmp;
   }
-  l=NULL;
+  return NULL;
 }
 
 char * allWords(nodePropose* l){
@@ -129,7 +131,7 @@ char * allWords(nodePropose* l){
       res[offset-1]= ALL_WORDS_DELIM;
     it = it->suiv;
   }
-  //res[offset]='\0';
+  res[offset]='\0';
 
   printf("allWords : %s\n",res);
   return res;

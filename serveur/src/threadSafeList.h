@@ -20,11 +20,11 @@ typedef struct ljoueur{
 /*Fonction classique de manipulation de liste chaine*/
 extern ljoueur* addPlayertoPropose(ljoueur * l, joueur * j );
 
-extern void addPropose(nodePropose * l,char * mot, joueur* j);
+extern nodePropose* addPropose(nodePropose * l,char * mot, joueur* j);
 
 extern int nb_Elem(nodePropose *l);
 
-extern void detruire(nodePropose* l);
+extern nodePropose* detruire(nodePropose* l);
 
 extern char * allWords(nodePropose* l);
 /***********************/

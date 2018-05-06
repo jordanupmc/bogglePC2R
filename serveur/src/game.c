@@ -114,6 +114,8 @@ void addNewJoueur(int sock, char * nom, joueur** tab ){
   j->sock= sock;
   j->score=0;
   strncpy(j->nom, nom, strlen(nom));
+  j->nom[strlen(nom)]=0;
+  
   pthread_mutex_lock(&mutJoueur);
   tab[nbPlayer++] = j;
 

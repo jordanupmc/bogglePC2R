@@ -34,7 +34,7 @@ pthread_mutex_t mutChat = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t condEmptyChat = PTHREAD_COND_INITIALIZER;
 
 int nbTourSession;
-nodePropose * proposition;
+nodePropose * proposition=NULL;
 int immediat;
 unsigned char randomGrille;
 char ** grillesUser;
@@ -366,9 +366,10 @@ void writeToJournal(char * scores, int tour){
 }
 
 void calculScore(){
-   nodePropose * it= proposition;
+  nodePropose * it= proposition;
   while( it ){
     ljoueur * itj = it->players;
+    
     if(it->nbPlayer == 1){
       if(itj){
 	itj->joueur->score += strlenToScore(strlen(it->mot));
@@ -458,7 +459,7 @@ void * job_Timer(void * arg){
 	setBadExit(ta->players[i]);
       }
     
-    detruire( proposition );
+    proposition = detruire( proposition );
     printf("BILAN  = %s\n", motsProp);
     if(motsProp)
       free(motsProp);
@@ -816,7 +817,9 @@ void* job_Verif(void * arg){
 	    }
 	    else{
 	      //SCORE++
-	      addPropose(proposition, va->players[tmp]->mots[i], va->players[tmp]);
+	      pthread_mutex_lock(&mutVerif);
+	      proposition = addPropose( proposition, va->players[tmp]->mots[i], va->players[tmp]);
+	       pthread_mutex_unlock(&mutVerif);
 	      //va->players[tmp]->score+=strlenToScore(sizeMot);
 	      // printf("Propose score %d\n",va->players[tmp]->score);
 	    }
@@ -976,7 +979,6 @@ int main(int argc, char** argv){
 
   struct sockaddr_in addr;
   int s;
- 
   /*CLIENT*/
   struct sockaddr_in client;
   int clientSize = sizeof(client);
