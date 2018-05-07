@@ -459,7 +459,7 @@ void * job_Timer(void * arg){
 	setBadExit(ta->players[i]);
       }
     
-    proposition = detruire( proposition );
+    detruire( &proposition );
     printf("BILAN  = %s\n", motsProp);
     if(motsProp)
       free(motsProp);
@@ -594,8 +594,9 @@ void* job_AddTrouveImmediat(void * arg){
 	 
 	char cm = checkMot(curr->mot, sizeMot, ta->sockDico);
 	if(cm == 1){
-	  
-	  if(containsMotThenAdd(proposition, curr->mot, player)){
+	
+	  if(containsMotThenAdd(&proposition, curr->mot, player) ){
+	   
 	    snprintf( bufErr, (MAX/2)-1, "MINVALIDE/PRI mot deja propose/\n");
 	    if( !(write(curr->fromSock , bufErr, strlen(bufErr) ))){
 	      perror("Error Broadcast write outchan server"); 
@@ -775,7 +776,7 @@ void* job_Verif(void * arg){
     tmp= --(*(va->nbVerif));
     pthread_mutex_unlock(&mutVerif);
     //printf("%s %d\n", va->players[tmp]->nom, va->players[tmp]->nbTrouve);
-    for(i=0; va->players[tmp] && i< va->players[tmp]->nbTrouve; i++){
+    for(i=0; va->players[tmp] && !(va->players[tmp]->badExit) && i< va->players[tmp]->nbTrouve; i++){
       
       // printf("TROUVE = %s %s", va->players[tmp]->mots[i],va->players[tmp]->traj[i] );
       memset(buf,0, NB_des+10);
@@ -815,11 +816,8 @@ void* job_Verif(void * arg){
 	      perror("Error Broadcast write outchan server");
 	      setBadExit(va->players[tmp]);
 	    }
-	    else{
-	      //SCORE++
-	      pthread_mutex_lock(&mutVerif);
-	      proposition = addPropose( proposition, va->players[tmp]->mots[i], va->players[tmp]);
-	       pthread_mutex_unlock(&mutVerif);
+	    else{  
+	      addPropose( &proposition, va->players[tmp]->mots[i], va->players[tmp]);
 	      //va->players[tmp]->score+=strlenToScore(sizeMot);
 	      // printf("Propose score %d\n",va->players[tmp]->score);
 	    }

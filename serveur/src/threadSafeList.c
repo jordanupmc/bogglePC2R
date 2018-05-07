@@ -26,52 +26,53 @@ int sizeLJoueur(ljoueur *lj){
     return 0;
   return 1+sizeLJoueur(lj->suiv);
 }
-nodePropose* addProposeNotSafe(nodePropose * l,char * mot, joueur* j){
- nodePropose *tmp, *it;
- 
-  if(!l){
-    l=malloc(sizeof(nodePropose));
-    l->players = addPlayertoPropose(l->players, j);
-    strncpy(l->mot, mot, strlen(mot));
+
+void addProposeNotSafe(nodePropose **l,char * mot, joueur* j){
+  nodePropose *tmp, *it, *l2;
+  l2 = *l;
+  
+  if(!l2){
+    l2=malloc(sizeof(nodePropose));
+    l2->players = addPlayertoPropose(l2->players, j);
+    strncpy(l2->mot, mot, strlen(mot));
     
-    l->mot[strlen(mot)]='\0';
+    l2->mot[strlen(mot)]='\0';
     //printf("VRAIMENT ADD = %s mot =%s %d\n", (*l)->mot, mot, strlen(mot));
-    l->nbPlayer= 1;
-    l->suiv=NULL;
-    return l;
+    l2->nbPlayer= 1;
+    l2->suiv=NULL;
+    *l=l2;
+    return;
   }
-  it = l;
+  it = l2;
   int smot =strlen(mot);
   int cur;
   while(it){
     cur = strlen(it->mot);
     //2eme proposition d'un mot -> on ajoute le joueur a la liste
     if( smot == cur && !strncmp(it -> mot, mot, cur)  ){
-      it->players = addPlayertoPropose(it->players, j);
+      (it->players) = addPlayertoPropose(it->players, j);
       (it->nbPlayer)++;
       //(*l)->nbPlayer = 
       //printf("ADDPROPOSE nbPLay=%d %s\n", (*l)->nbPlayer, it->mot);
-      return l;
+      return;
     }
     it = it -> suiv;
   }
   tmp=malloc(sizeof(nodePropose));
-  tmp->suiv=l;
-  l=tmp;
-  l->players = addPlayertoPropose(l->players, j);
-  l->nbPlayer=1;
-  strncpy(l->mot, mot, strlen(mot));
-  l->mot[strlen(mot)]='\0';
+  tmp->suiv=l2;
+  l2=tmp;
+  l2->players = addPlayertoPropose(l2->players, j);
+  l2->nbPlayer=1;
+  strncpy(l2->mot, mot, strlen(mot));
+  l2->mot[strlen(mot)]='\0';
+  *l=l2;
   //printf("VRAIMENT ADD = %s mot=%s %d\n", (*l)->mot,mot , strlen(mot));
-  return l;
 }
 
-nodePropose* addPropose(nodePropose * l,char * mot, joueur* j){
-  nodePropose* tmp;
+void addPropose(nodePropose ** l,char * mot, joueur* j){
   pthread_mutex_lock(&mutList);
-  tmp = addProposeNotSafe(l,mot,j);
+  addProposeNotSafe(l,mot,j);
   pthread_mutex_unlock(&mutList);
-  return tmp;
 }
 
 
@@ -82,23 +83,31 @@ int nb_Elem(nodePropose *l){
   //return cpt;
 }
 
-void detruirePlayers(ljoueur * l ){
-   if(!l)
-     return;
-   ljoueur *tmp=l->suiv;
-   free(l);
-   detruirePlayers(tmp);
+void detruirePlayers(ljoueur *l ){
+  if(!l)
+    return;
+  ljoueur *tmp;
+  /* free(l);
+  detruirePlayers(tmp);*/
+  while(!l){
+    tmp = l->suiv;
+    free(l);
+    l=tmp;
+  }
+  
 }
 
-nodePropose * detruire(nodePropose* l){
+void detruire(nodePropose** l){
   nodePropose * tmp;
   nodePropose * tmp2;
   
-  if(!l)
-    return NULL;
+  if(! (*l))
+    return;
  
-  tmp=l->suiv;
-  detruirePlayers( l->players);
+  tmp=(*l)->suiv;
+  detruirePlayers((*l)->players);
+  (*l)->players = NULL;
+  
   tmp2 = tmp;
   
   while( tmp2 ){
@@ -106,7 +115,8 @@ nodePropose * detruire(nodePropose* l){
     free(tmp2);
     tmp2=tmp;
   }
-  return NULL;
+  
+  *l=NULL;
 }
 
 char * allWords(nodePropose* l){
@@ -138,10 +148,10 @@ char * allWords(nodePropose* l){
 }
 
 /*TEST & SET*/
-unsigned char containsMotThenAdd(nodePropose* l, char * mot, joueur* j){
+unsigned char containsMotThenAdd(nodePropose** l, char * mot, joueur* j){
   pthread_mutex_lock(&mutList);
   int slen = strlen(mot);
-  unsigned char tmp = aux_containsMot( l, mot, slen);
+  unsigned char tmp = aux_containsMot( *l, mot, slen);
   if(!tmp)
     addProposeNotSafe(l, mot, j);
   pthread_mutex_unlock(&mutList);
