@@ -69,11 +69,11 @@ void fillDataChat(data * d,unsigned char type, char * msg, char * user, int s ){
   d->type = type;
   d->fromSock = s;
   if(msg){
-    //memset(d->msg, 0, MAX);
+    memset(d->msg, 0, MAX);
     strncpy(d->msg, msg, strlen(msg)< MAX? strlen(msg): MAX-1);
   }
   if(user){
-    // memset(d->nom, 0, MAX);
+    memset(d->nom, 0, MAX);
     strncpy(d->nom, user, strlen(user) < MAX? strlen(user):MAX-1);
   }
  
@@ -122,11 +122,9 @@ data * parseRequest(char * req, int size, int newSock ){
   memset(msg, 0, MAX);
   memset(mot, 0, MAX/2);
   memset(traj, 0, MAX_TRAJ);
-  //printf("REQ =%s\n",req);
   
   while(it){    
     
-    //printf("%s %d\n", it, strlen(it));
     if( !strcmp(it, "CONNEXION") && cpt == 0 ){
       type=0;
     }
@@ -148,19 +146,19 @@ data * parseRequest(char * req, int size, int newSock ){
       fillData(res, type, user, NULL, NULL, newSock);
     }
     else if( type == 2 && cpt==1){
-      strncpy(mot, it, strlen(it) );
+      strncpy(mot, it, strlen(it)<MAX/2 ? strlen(it): (MAX/2)-1 );
       //printf("MOT = %s\n",mot);
     }
     else if( type ==2 && cpt==2){
-      strncpy(traj, it, strlen(it) );
+      strncpy(traj, it, strlen(it)< MAX_TRAJ ? strlen(it): MAX_TRAJ-1 );
       fillData(res, type, NULL, mot, traj, newSock);
     }
     else if( type ==3 && cpt==1){
-      strncpy(msg, it, strlen(it) );
+      strncpy(msg, it, strlen(it)< MAX ? strlen(it):MAX-1 );
       fillDataChat(res, type,msg,NULL, newSock);
     }
     else if( type ==4 && cpt==1){
-      strncpy(user, it, strlen(it) );
+      strncpy(user, it, strlen(it)< MAX ?strlen(it) : MAX-1 );
     }
     else if( type ==4 && cpt==2){
       strncpy(msg, it, strlen(it) < MAX ? strlen(it): MAX-1 );
@@ -203,35 +201,10 @@ int readInChan(int sock, char * buf, int size){
   }
   if(r > size)
     return 0;
-  //printf("READ  = %s\n", buf);
   buf[r-1] = 0; 
   return r-1;
 }
-/*int readInChan(int sock, char * buf, int size){
-  
-  memset(buf, 0, size);
-  int r = read(sock, buf, size);
-  int tmp;
-  if( r < 0 ){
-    perror("Error readInChan 1");
-    return 0;
-  }
 
-  int pos;
-  while( !(pos=containsNewLine(buf, size)) && r<size ){
-    tmp =read(sock, buf+r, size-r);
-    r+=tmp;
-    if( tmp < 0 ){
-      perror("Error readInChan 2");
-      return 0;
-    }
-  }
-  if(r > size)
-    return 0;
-
-  buf[pos] = 0; 
-  return pos-1;
-}*/
 
 void handleConnexionRequest(data * r, int sock, joueur** arr,  int * btime){
   if(!r)
@@ -592,7 +565,7 @@ void* job_AddTrouveImmediat(void * arg){
       if( (cTraj=checkTrajectoire( pos, nbCase )) == 1 &&  (match=checkTrajMatchMot(curr->mot, pos, curTirage)) ==1 ){
 	//printf("Cool trajectoire correcte\nVerif dans dico...\n");
 	 
-	char cm = checkMot(curr->mot, sizeMot, ta->sockDico);
+	char cm = checkMot(curr->mot, sizeMot, connectWithWordsServer());
 	if(cm == 1){
 	
 	  if(containsMotThenAdd(&proposition, curr->mot, player) ){
@@ -611,7 +584,7 @@ void* job_AddTrouveImmediat(void * arg){
 	    }
 	    //addPropose(&proposition, curr->mot, player);
 	    player->score+=strlenToScore(sizeMot);
-	    printf("score %d\n", player->score);
+	    //printf("score %d\n", player->score);
 	  }
 	}
 	else if(cm == 2){
@@ -806,7 +779,7 @@ void* job_Verif(void * arg){
 	//printf("nbCASE =%d %s\n",nbCase, va->players[tmp]->traj[i]);
 	if( (cTraj=checkTrajectoire( pos, nbCase )) == 1 && (match=checkTrajMatchMot(va->players[tmp]->mots[i], pos, curTirage))==1 ){
 	 
-	  char cm = checkMot(va->players[tmp]->mots[i], sizeMot, va->sockDico);
+	  char cm = checkMot(va->players[tmp]->mots[i], sizeMot, connectWithWordsServer());
 	  if(cm == 1){
 	  
 	    snprintf( buf, NB_des+10, "MVALIDE/%s/\n", va->players[tmp]->mots[i]);
@@ -818,7 +791,6 @@ void* job_Verif(void * arg){
 	    }
 	    else{  
 	      addPropose( &proposition, va->players[tmp]->mots[i], va->players[tmp]);
-	      //va->players[tmp]->score+=strlenToScore(sizeMot);
 	      // printf("Propose score %d\n",va->players[tmp]->score);
 	    }
 	  }
@@ -903,6 +875,25 @@ int connectWithWordsServer(){
   return sockDico;
 }
 
+char isWordsServerReady(){
+  int sd;
+  
+  if( (sd=connectWithWordsServer())>0 ){
+    if(write(sd, "I\n", 2)){
+      shutdown(sd, 2);
+      close(sd);
+      return 1;
+    }
+    else{
+      perror(" isWordsServerReady ");
+      shutdown(sd, 2);
+      close(sd);
+    }
+  }
+  
+  return -1;
+}
+
 void getOption(int argc, char** argv, int * port, int * tour, int * immediat){
   int i;
   char portOpt =0;
@@ -946,14 +937,40 @@ void getOption(int argc, char** argv, int * port, int * tour, int * immediat){
       }
     }
     else if(!strcmp(argv[i], "-grilles") ){
+
+      /*Parcours pour voir si l'option tour est précisez plus tard*/
+      if(!tourOpt){
+	int j;
+	for(j=i+1; j< argc; j++){
+	  if( !strcmp(argv[j], "-tour" )){
+	    if(argc >= j+1){
+	      *tour = safeStrtol(argv[j+1]);
+	      if( (*tour) <= 0){
+		printf("Usage: %s -tour x > 0\n", argv[0]);
+		exit(1);
+	      }
+	      tourOpt =1;
+	    }
+	  }
+	}
+      }
       if(!tourOpt || argc < i+ (*tour)){
-	fprintf(stderr, "-grilles bad format: precisez le nombre de tour avant cette option\n");
-	return;
+	fprintf(stderr, "Usage: %s -tour n -grilles n*grilles\n", argv[0]);
+	exit(1);
       }
       grillesUser = malloc( sizeof(char*) * (*tour));
       int x;
       for(x=0;x< (*tour);x++)
-	grillesUser[x]=strdup(argv[i+1+x]);
+	if( strlen(argv[i+1+x]) != 16){
+	  int ex;
+	  printf("Usage: %s -grilles need 16 cases (instead of %s size=%d)\n", argv[0], argv[i+x+1],(int)strlen(argv[i+1+x]));
+	  for(ex=0;ex<x; ex++)
+	    free(grillesUser[ex]);
+	  free(grillesUser);
+	  exit(1);
+	}
+	else
+	  grillesUser[x]=strdup(argv[i+1+x]);
       randomGrille=0;
       grillesOpt = 1;
     }
@@ -1017,8 +1034,7 @@ int main(int argc, char** argv){
   }
   
   printf("Connect with words server...\n");
-  int sockWords = connectWithWordsServer();
-  if( sockWords < 0 )
+  if( isWordsServerReady() < 0 )
     return -1;
   
   char buf[MAX];
@@ -1077,7 +1093,6 @@ int main(int argc, char** argv){
     tra[i].players=arr;
     tra[i].tabReq = reqTrouve;
     tra[i].timerStat = &btime;
-    tra[i].sockDico=sockWords;
     if(!immediat)
       pthread_create(threadTrouve+i, NULL, job_AddTrouve, tra+i);
     else
@@ -1086,7 +1101,7 @@ int main(int argc, char** argv){
 
 
   int cptJobVerif=0;
-  verifArg varg = { &nbVerif, &nbVerif2, &cptJobVerif ,arr,sockWords };
+  verifArg varg = { &nbVerif, &nbVerif2, &cptJobVerif ,arr };
 
   if(!immediat)
     for(i=0; i< MAX_POOL_VERIF;i++)
@@ -1104,18 +1119,13 @@ int main(int argc, char** argv){
   FD_ZERO(&rfds);
   
   while(1){
-    
-    /*SC*/
-    // FD_ZERO(&rfds);
+   
     FD_SET(s, &rfds);
     for(i=0; i<getNbPlayer(); i++){
-      //  printf("ADD %d\n",arr[i]->sock);
       if( arr[i] && !(arr[i]->badExit) )
 	FD_SET(arr[i]->sock, &rfds);
     }
-
-    //printf("Serveur en attente...");
-    //fflush(stdout);
+    
     retval = select(maxFD+1, &rfds, NULL, NULL, NULL);
     if (retval == -1){
       perror("select()");
@@ -1123,7 +1133,6 @@ int main(int argc, char** argv){
       FD_SET(s,&rfds);
     }
     else if (retval){
-      //printf("Data is available now.\n");
       if( FD_ISSET(s, &rfds ) ){
 	if( !(sockClient=accept(s, (struct sockaddr *) &client, (socklen_t *)&clientSize ) )){
 	  fprintf(stderr, "Error accept\n");
@@ -1149,8 +1158,6 @@ int main(int argc, char** argv){
 	for(i=0; i<getNbPlayer(); i++)
 	  if( arr[i] && FD_ISSET(arr[i]->sock, &rfds) ){
 	    /*DEBLOQ LA POOL DE REPONSE*/
-	    //printf("DEBUG DECO i=%d nbP=%d\n",i, getNbPlayer());
-	    //memset(buf,0,MAX);
 	    if( ! (nbR=readInChan(arr[i]->sock , buf, MAX )) )
 	      continue;
 	    data *d  = parseRequest(buf, nbR, arr[i]->sock);
@@ -1160,17 +1167,14 @@ int main(int argc, char** argv){
 	    
 	    //DECONNEXION "obliger" de le faire en synchrone
 	    if(d->type == 1){ 
-	      //printf("BROADCAST deco!\n");
 	      char * cp = strdup(arr[i]->nom);
 	      int tmpSock = arr[i]->sock;
 	      removeJoueurBySocket(tmpSock , arr);
 	      
-	      //memset(tmpBroadcast,0 ,strlen(cp)+20);
 	      
 	      snprintf( tmpBroadcast, strlen(cp)+20-1, "DECONNEXION/%s/\n", cp);
 	      int j;
 	      for( j =0; j< getNbPlayer(); j++){
-		//printf("Je broadcast %s!\n",tmpBroadcast);
 		if( !(write( arr[j]->sock , (const void *)tmpBroadcast, strlen(tmpBroadcast)))){
 		  perror("Error Broadcast write outchan server");
 		  setBadExit(arr[j]);
@@ -1184,11 +1188,9 @@ int main(int argc, char** argv){
 	      free(d);
 	    }
 	    else if( d->type == 2){
-	      //printf("Je rentre ici\n");
 	      pthread_mutex_lock(&mutTrouve);
 	      if( nbTrouve < MAX ){
 		reqTrouve[nbTrouve++]=d;
-		//printf("JOB TRAJ = %s\n", d->traj);
 		pthread_cond_signal( &condEmptyTrouve );
 	      }
 	      else

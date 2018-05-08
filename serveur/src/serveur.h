@@ -42,7 +42,6 @@ typedef struct verifArg  {
   int * nbVerif2;
   int * cptJob;
   joueur ** players;
-  int sockDico;
 } verifArg;
 
 typedef struct timerArg  {
@@ -57,7 +56,6 @@ typedef struct trouveArg {
   data ** tabReq;
   int * nbTrouve;
   int * timerStat;
-  int sockDico;
 } trouveArg;
 
 typedef struct chatArg{
@@ -66,14 +64,6 @@ typedef struct chatArg{
   int * nbChat;
 }chatArg;
 
-/*SALE*/
-/*static pthread_mutex_t mut = PTHREAD_MUTEX_INITIALIZER;
-static pthread_cond_t condEmptyClient = PTHREAD_COND_INITIALIZER;
-static pthread_mutex_t mutSort = PTHREAD_MUTEX_INITIALIZER;
-static pthread_cond_t condEmptySort = PTHREAD_COND_INITIALIZER;
-static pthread_mutex_t mutTime = PTHREAD_MUTEX_INITIALIZER;
-static pthread_cond_t condBeginSession = PTHREAD_COND_INITIALIZER;
-*//******/
 
 extern nodePropose * proposition;
 extern int nbTourSession;
@@ -82,4 +72,6 @@ extern char isFormatCorrect(char * req, int size);
 extern data * parseRequest(char * req, int size, int newSock);
 extern int readInChan(int sock, char * buf, int size);
 extern void reduceScore();
+extern int connectWithWordsServer();
+extern char isWordsServerReady();
 #endif

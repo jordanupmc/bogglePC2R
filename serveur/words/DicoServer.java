@@ -4,10 +4,6 @@ import java.util.concurrent.*;
 import java.util.Vector;
 import java.util.Random;
 import java.util.*;
-/*
-import tries.patricia.interfaces.*;
-import tries.patricia.*;
-*/
 
 public class  DicoServer{
     public static void main (String args[]) {
@@ -73,16 +69,19 @@ class echoServer {
     public void newConnect () {
 	nbConnectedClients++;
 	nbWaitingSocks--;
-	System.out.println(" Thread handled connection.");
-	System.out.println("   * " + nbConnectedClients + " connected.");
-	System.out.println("   * " + nbWaitingSocks + " waiting.");
-    }
+	/*	System.out.println(" Thread handled connection.");
+		System.out.println("   * " + nbConnectedClients + " connected.");
+		System.out.println("   * " + nbWaitingSocks + " waiting.");
+	*/
+   }
 
     public void clientLeft () {
 	nbConnectedClients--;
-	System.out.println(" Client left.");
-	System.out.println("   * " + nbConnectedClients + " connected.");
-	System.out.println("   * " + nbWaitingSocks + " waiting.");
+	/*
+	  System.out.println(" Client left.");
+	  System.out.println("   * " + nbConnectedClients + " connected.");
+	  System.out.println("   * " + nbWaitingSocks + " waiting.");
+	*/
     }
 
     public Set<String> getDico(){
@@ -97,11 +96,10 @@ class echoServer {
 	    
 	    while (true) {
 		client = serv.accept();
-		System.out.println("New connexion at server.");  
 		synchronized (this) {
 		    sockets.add(client);
 		    nbWaitingSocks++;
-		    this.notify();
+		    this.notifyAll();
 		}
 	    }
 	} catch (Throwable t) { t.printStackTrace(System.err); }
@@ -131,7 +129,7 @@ class echoClient extends Thread {
 	Set<String> dico = server.getDico();
 	while (true) {
 	    synchronized (server) {
-		if (server.stillWaiting() == 0)
+		while(server.stillWaiting() == 0)
 		    try {
 			server.wait();
 		    } catch (InterruptedException e) { e.printStackTrace(); }
@@ -144,19 +142,14 @@ class echoClient extends Thread {
 		outchan = new DataOutputStream(s.getOutputStream());
 		
 		socket  = s;
-		
-		cont = true;
-		while (cont) {
+        
+		String cmd = inchan.readLine();
+		byte[] res;
 		    
-		    String cmd = inchan.readLine();
-		    byte[] res;
-		    
-		    if(cmd == null)
-			continue;
+		if(cmd !=null){
 		    param= cmd.split(" ");
-		    System.out.println(param[0]+" "+param[1]);
-		    
-		    if(param[0].equals("CHECK") ){
+	       	    
+		    if( param.length > 0 && param[0].equals("CHECK") ){
 			if( dico.contains(param[1]) ){
 			    res="OK\n".getBytes("UTF-8");
 			    outchan.write(res,0, res.length);
@@ -165,49 +158,8 @@ class echoClient extends Thread {
 			    res="KO\n".getBytes("UTF-8");
 			    outchan.write(res,0, res.length);
 			}
-			outchan.flush(); System.out.println("bytes = "+res.length);
+			outchan.flush();
 		    }
-		    /*
-		      switch (param[0]){
-		      case "START":
-		      System.out.println("Un client va commencer une interaction");
-		      int tmp;
-			
-		      synchronized(server){
-		      tmp = server.getCurrentId();
-		      server.setCurrentId();
-		      }
-		      outchan.writeChars( tmp +"\n" );
-			
-		      break;
-			
-		      case "PUT":
-		      server.getMap().put(param[1], param[2]);
-		      System.out.println("ID ="+param[3]);
-		      outchanStat.writeChars( "PUT "+ param[3] );
-		      outchanStat.flush();
-		      break;
-		      case "GET":
-		      if(server.getMap().containsKey(param[1])){
-		      outchan.writeChars( server.getMap().get(param[1])+"\n" );
-		      outchanStat.writeChars( "GET "+param[2]  );
-		      outchanStat.flush();
-		      }
-		      else
-		      outchan.writeChars( "Key not found\n" );
-		      outchan.flush();
-		      break;
-
-		      case "QUIT":
-		      System.out.println("Un client a terminé son interaction");
-		      cont =false;
-		      break;
-		      default:
-		      System.out.println("????");
-		      break;
-		      }
-		    */
-	 
 		}
 		socket.close();
 		synchronized (server) {

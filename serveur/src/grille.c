@@ -7,9 +7,11 @@
 #include <unistd.h>
 #include <errno.h>
 #include <limits.h>
+#include <sys/socket.h>
+
 
 char mAdjacence[16][16];
-pthread_mutex_t mutDico = PTHREAD_MUTEX_INITIALIZER;
+//pthread_mutex_t mutDico = PTHREAD_MUTEX_INITIALIZER;
 
 /*Les des en versions international
   On crée une fonction pour eviter d'avoir une variable globale
@@ -255,19 +257,23 @@ char checkMot(char * mot, int size, int sock){
   char res[MAX];
 
   snprintf(buf, MAX-1, "CHECK %s\n",mot);
-  pthread_mutex_lock(&mutDico);
+
 
   if( ! (write( sock , (const void *)buf, strlen(buf)))){
     perror("Error write outchan server");
-    pthread_mutex_unlock(&mutDico);
+    shutdown(sock, 2);
+    close(sock);
     return -1;
   }
 
   if( ! (nbR=(char)readInChan(sock , res, 3 )) ){
-    pthread_mutex_unlock(&mutDico);
+    shutdown(sock, 2);
+    close(sock);
     return nbR;
   }
-  pthread_mutex_unlock(&mutDico);
+
+  shutdown(sock, 2);
+  close(sock);
 
   if( !strncmp(res, "KO",2) )
     return 2;
