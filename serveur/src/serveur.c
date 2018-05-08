@@ -289,16 +289,15 @@ void* job_pool(void* a){
     /********SC*******/
     
     
-    if( ! (nbR=readInChan(sock , buf, MAX )) ){//A revoir
+    if( ! (nbR=readInChan(sock , buf, MAX )) )
       continue;
-    }
     
-    if( ! (res=parseRequest(buf, nbR-1, sock)) ){
+    
+    if( ! (res=parseRequest(buf, nbR-1, sock)) )
       fprintf(stderr,"parseRequest fail !\n");
-    }
-    else if(res->type == 0){
+    else if(res->type == 0)
       handleConnexionRequest(res, sock, arg->players, arg->boolTimer);
-    }
+    
     
 
     if(res)
@@ -367,7 +366,7 @@ void * job_Timer(void * arg){
     pthread_mutex_unlock(&mutTime);
     //DEBUG time 10 sinon TIME_TOUR
     printf("Reflexion !\n");
-    sleep(25);
+    sleep(TIME_TOUR);
     //Entrez en phase verification
     pthread_mutex_lock(&mutTime);
     *(ta->bool) = 2;
@@ -1011,6 +1010,8 @@ int main(int argc, char** argv){
   if(immediat)
     printf("===Option immediat active===\n");
 
+  printf("===Nombre de tour %d\n",nbTourSession);
+  
   printf("===Lancez le web server si vous voulez visualiser les resultats: localhost:8888/cgi.py===\n");
 
   if(s< 0){

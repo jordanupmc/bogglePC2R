@@ -50,19 +50,22 @@ Placez dans le répertoire journal lancer la commande
 
 ## Lancer les tests
 
-Pour lancer les tests contenu dans le dossiers tests/
-```
+Pour lancer les tests placez dans le dossiers tests/ lancez:
 
 ```
+./startWithGrid port fileGrille
+```
 
-### Style des tests
+Un fileGrille contient le nombre de tour (-tour) et les grilles (-grilles), avec une grille par ligne. 
+
+Le fichier goodGrilles contient des grilles contenant beaucoup de mots valide
 
 ## Build
 
 Makefile 
+Ant
 
-## Auteur
+## Auteurs
 
 * **Jeudy Jordan**
 * **Ta Michael** 
-
