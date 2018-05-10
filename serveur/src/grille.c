@@ -11,7 +11,6 @@
 
 
 char mAdjacence[16][16];
-//pthread_mutex_t mutDico = PTHREAD_MUTEX_INITIALIZER;
 
 /*Les des en versions international
   On crée une fonction pour eviter d'avoir une variable globale
@@ -65,7 +64,6 @@ int distance( point p, point q ){
   
   char s = (q.x - p.x)*(q.x - p.x) + (q.y - p.y)*(q.y - p.y);
   s = sqrt(s);
-  //printf("D = %d (%f,%f)\n", (int)floor(s), p.x, p.y);
   return (int)floor(s);
 }
 
@@ -181,7 +179,7 @@ int * convertClientTrajectoireToPosition( char * trajArg, int n ){
     perror("malloc at convertUserTrajectoireToPosition ");
     return NULL;
   }
-  //printf("TRAJ ARG = %s\n", trajArg);
+
   for(i=0; i< n; i++){
 
     switch (traj[i][0]){
@@ -211,16 +209,8 @@ int * convertClientTrajectoireToPosition( char * trajArg, int n ){
       return NULL;
     }
     tab[i] = offset + traj[i][1]-1;
-    
-    //printf("CONVERT traj[i][1]-1%d\n", traj[i][1]-1);
-    //printf("CONVERT : offset=%d traj=%d tab=%d\n", offset,traj[i][1]-1, tab[i] );
   }
-  /*
-  printf("Print position.... ");
-  for(i=0; i< n; i++)
-    printf("%d ", tab[i]);
-  
-    putchar('\n');*/
+
   
   for(i = 0; i< n; i++ )
     free(traj[i]);  

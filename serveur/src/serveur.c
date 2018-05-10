@@ -364,8 +364,8 @@ void * job_Timer(void * arg){
     
     *(ta->bool) = 0;
     pthread_mutex_unlock(&mutTime);
-    //DEBUG time 10 sinon TIME_TOUR
-    printf("Reflexion !\n");
+ 
+    printf("Reflexion time !\n");
     sleep(TIME_TOUR);
     //Entrez en phase verification
     pthread_mutex_lock(&mutTime);
@@ -381,7 +381,8 @@ void * job_Timer(void * arg){
       }
     }
     
-    printf("VERIF\n"); 
+    printf("VERIF TIME\n");
+    
     if(!immediat){
       pthread_mutex_lock(&mutVerif);
       (*(ta->nbVerif)) = getNbPlayer();
@@ -432,7 +433,7 @@ void * job_Timer(void * arg){
       }
     
     detruire( &proposition );
-    printf("BILAN  = %s\n", motsProp);
+    //printf("BILAN  = %s\n", motsProp);
     if(motsProp)
       free(motsProp);
     motsProp=NULL;
@@ -489,7 +490,7 @@ void * job_Timer(void * arg){
      */
     char tourBuf[25];
     snprintf( tourBuf, 24, "TOUR/%s/\n", curTirage );
-    printf("NEXT TOUR = %s\n", tourBuf);
+    //printf("NEXT TOUR = %s\n", tourBuf);
     
     for(i=0; i<getNbPlayer(); i++)
       if(ta->players[i]->badExit || !(write(ta->players[i]->sock , tourBuf, strlen(tourBuf) ))){

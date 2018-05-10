@@ -52,7 +52,6 @@ void addProposeNotSafe(nodePropose **l,char * mot, joueur* j){
     if( smot == cur && !strncmp(it -> mot, mot, cur)  ){
       (it->players) = addPlayertoPropose(it->players, j);
       (it->nbPlayer)++;
-      //(*l)->nbPlayer = 
       //printf("ADDPROPOSE nbPLay=%d %s\n", (*l)->nbPlayer, it->mot);
       return;
     }
@@ -133,17 +132,15 @@ char * allWords(nodePropose* l){
       it=it->suiv;
       continue;
     }
-    //strncpy(res+offset, it->mot, 16);
     snprintf(res+offset,16, "%s", it->mot);
-    //printf("wesh %s offset =%d res = %s res+offset=%s\n",it->mot, offset, res, res+offset);
     offset+=strlen(it->mot)+1;
+
     if(it->suiv)
       res[offset-1]= ALL_WORDS_DELIM;
     it = it->suiv;
   }
   res[offset]='\0';
-
-  printf("allWords : %s\n",res);
+  
   return res;
 }
 

@@ -206,9 +206,9 @@ char* getScoresNotSafe(joueur ** tab){
     w+= strlen(tab[i]->nom);
     w+=4;
   }
-  if(!w){
+  if(!w)
     return NULL;
-  }
+  
   w*=2;
   res = malloc( w );
   memset(res, 0, w);
