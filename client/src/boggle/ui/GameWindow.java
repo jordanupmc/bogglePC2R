@@ -45,6 +45,9 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import javafx.util.Duration;
+import javafx.stage.Modality;
+import javafx.scene.web.WebEngine;
+import javafx.scene.web.WebView;
 
 public class GameWindow{
 
@@ -329,17 +332,18 @@ public class GameWindow{
 					new EventHandler<ActionEvent>() {
 						@Override
 						public void handle(ActionEvent event) {
-
-							if (Desktop.isDesktopSupported()) {
-								try {
-									Desktop.getDesktop().browse(new URI(urlJournal));
-								} catch (IOException e) {
-									e.printStackTrace();
-								} catch (URISyntaxException e) {
-									e.printStackTrace();
-								}
-
-							}
+						    final Stage dialog = new Stage();
+						    dialog.initModality(Modality.NONE);
+						    dialog.initOwner(stage);
+						    WebView browser = new WebView();
+						    WebEngine webEngine = browser.getEngine();
+						    System.out.println(urlJournal);
+						    webEngine.load(urlJournal);
+		        		
+						    Scene dialogScene = new Scene(browser, 900, 900);
+						    dialog.setScene(dialogScene);
+						    dialog.show();
+						
 						}});
 			btn.setAlignment(Pos.TOP_RIGHT);
 			stackBtn.getChildren().add(btn);	    

@@ -159,8 +159,15 @@ unsigned char containsMotThenAdd(nodePropose** l, char * mot, joueur* j){
 unsigned char aux_containsMot(nodePropose* l, char * mot, int slen){
   if(!l)
     return 0;
-  int clen = strlen(l->mot);
-  if( !strncmp(l->mot, mot, clen < slen? clen: slen) )
-    return 1;
-  return aux_containsMot(l->suiv, mot, slen);
+  int clen;
+  nodePropose * tmp=l;
+  
+  while(tmp){
+    clen = strlen(tmp->mot);
+    if( clen == slen && !strcmp(tmp->mot, mot) )
+      return 1;
+    tmp = tmp->suiv;
+  }
+  
+  return 0;
 }

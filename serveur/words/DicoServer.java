@@ -28,34 +28,35 @@ class echoServer {
 	clients  = new Vector<echoClient>(c);
 	sockets  = new Vector<Socket>();
 	
-
-	initDico("glaff1.txt");
-
-	for (int i = 0; i < c; i++) {
-	    echoClient tmpEcho = new echoClient(this);
-	    clients.add(tmpEcho);
-	    tmpEcho.start();
+	try{
+	    initDico("../../client/Dictionnaire.txt");
+	    
+	    for (int i = 0; i < c; i++) {
+		echoClient tmpEcho = new echoClient(this);
+		clients.add(tmpEcho);
+		tmpEcho.start();
+	    }
+	    nbConnectedClients = 0;
+	    nbWaitingSocks     = 0;
+	    System.out.println("Le serveur de mots est pret");
+	}catch(Exception e){
+	    System.out.println(e);
+	    System.exit(1);
 	}
-	nbConnectedClients = 0;
-	nbWaitingSocks     = 0;
-	System.out.println("Le serveur de mots est pret");
     }
 
-    public void initDico(String filename){
+    public void initDico(String filename) throws Exception{
 	dico = new HashSet<String>();//PatriciaFactory.createNode();
 	BufferedReader inputStream = null;
 
-	try {
-	    inputStream = new BufferedReader( new FileReader(filename));
-	    String line;
+	inputStream = new BufferedReader( new FileReader(filename));
+	String line;
 	    
-	    while ((line = inputStream.readLine()) != null)
-		dico.add(line); 
-	    inputStream.close();	
+	while ((line = inputStream.readLine()) != null)
+	    dico.add(line); 
+	inputStream.close();	
 			
-	}catch(Exception e){
-	    System.out.println(e);
-	}
+
 
 	
     }

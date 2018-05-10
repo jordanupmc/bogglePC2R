@@ -22,7 +22,7 @@ make
 
 Pour lancer le serveur il faut d'abord lancer le serveur de mot
 ```
-java DicoServer x
+java DicoServer capaciteServer &
 ```
 
 Enfin vous pouvez lancer le serveur de jeu
@@ -45,7 +45,7 @@ Vous pouvez lancer le serveur Web python, pour visualiser sur une page html les 
 Placez dans le répertoire journal lancer la commande
 
 ```
-./server.py 
+./server.py &
 ```
 
 #### Client

@@ -568,7 +568,7 @@ void* job_AddTrouveImmediat(void * arg){
 	char cm = checkMot(curr->mot, sizeMot, connectWithWordsServer());
 	if(cm == 1){
 	
-	  if(containsMotThenAdd(&proposition, curr->mot, player) ){
+	  if( containsMotThenAdd(&proposition, curr->mot, player) ){
 	   
 	    snprintf( bufErr, (MAX/2)-1, "MINVALIDE/PRI mot deja propose/\n");
 	    if( !(write(curr->fromSock , bufErr, strlen(bufErr) ))){

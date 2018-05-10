@@ -78,7 +78,7 @@ public class UIMain extends Application {
 					break;
 					
 				case "-journal":
-					i++;
+				        i++;
 					journalUrl = args[i];
 					i++;
 					break;
