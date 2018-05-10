@@ -12,8 +12,8 @@ Ces instructions vont vous permettre de lancer correctement le projet, que ce so
 * **Python 2.3**
 * **Java 8**
 
-### Installation
-
+## Installation 
+#### Serveur
 Pour compiler le serveur de jeu, placez dans le répertoire serveur lancez la commande.
 
 ```
@@ -48,6 +48,20 @@ Placez dans le répertoire journal lancer la commande
 ./server.py 
 ```
 
+#### Client
+Pour lancer compiler le client, placez vous dans le répertoire du projet et lancez la commande :
+
+```ant compile```
+
+Pour lancer le client, lancez la commande :
+```ant run -Dargs=''-serveur|-port|-chat|-cheat|-journal''```
+
+* *serveur hostname : indiquant le nom du serveur ou son adresse IP*
+* *port numport : précisant le numéro de port du serveur*
+* *chat : pour activer le chat*
+* *cheat : pour activer le client autonome*
+* *journal website : indiquant l’adresse web du journal*
+
 ## Lancer les tests
 
 Pour lancer les tests placez dans le dossiers tests/ lancez:
@@ -62,8 +76,8 @@ Le fichier goodGrilles contient des grilles contenant beaucoup de mots valide
 
 ## Build
 
-Makefile 
-Ant
+* Makefile
+* Ant
 
 ## Auteurs
 
