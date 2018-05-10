@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project basedir="." default="build" name="PC2R_Client">
+    <property environment="env"/>
+    <property name="debuglevel" value="source,lines,vars"/>
+    <property name="target" value="1.8"/>
+    <property name="source" value="1.8"/>
+    <path id="PC2R_Client.classpath">
+        <pathelement location="bin"/>
+    </path>
+    <target name="init">
+        <mkdir dir="bin"/>
+        <copy includeemptydirs="false" todir="bin">
+            <fileset dir="src">
+                <exclude name="**/*.launch"/>
+                <exclude name="**/*.java"/>
+            </fileset>
+        </copy>
+    </target>
+    <target name="clean">
+        <delete dir="bin"/>
+    </target>
+    <target depends="init" name="compile">
+        <echo message="${ant.project.name}: ${ant.file}"/>
+        <javac debug="true" debuglevel="${debuglevel}" destdir="bin" includeantruntime="false" source="${source}" target="${target}">
+            <src path="src"/>
+            <classpath refid="PC2R_Client.classpath"/>
+        </javac>
+    </target>
+    <target name="run" depends="compile" description="Run">
+        <java classname="boggle.ui.UIMain" failonerror="true" fork="yes">
+      		<arg line="${args}"/>
+            <classpath refid="PC2R_Client.classpath"/>
+        </java>
+    </target>
+    
+    <target name="dist" description="Generate distribution" depends="init,clean">
+   		<jar basedir="." jarfile="../PC2R-BoggleClient-JEUDY-TA.jar"/>
+   	</target>
+</project>
