@@ -6,9 +6,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+
+/*NEW INCLUDE SUPPORT MAC OSX*/
+#include <arpa/inet.h>
+#include <netinet/in_systm.h>
+#include <netinet/tcp.h>
 #include <netinet/in.h>
 #include <netinet/ip.h>
-#include <arpa/inet.h>
+/**/
+
 #include <errno.h>
 #include <string.h>
 #include <fnmatch.h>
